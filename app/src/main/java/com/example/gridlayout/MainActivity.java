@@ -13,9 +13,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-
+    ///// My variables /////
     private static final int COLUMN_COUNT = 10;
     private static final int ROW_COUNT = 12;
+    private static final int MINE_COUNT = 4;
 
     // save the TextViews of all cells in an array, so later on,
     // when a TextView is clicked, we know which cell it is
@@ -31,9 +32,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        cell_tvs = new ArrayList<TextView>();
 
-        // Method (3): add four dynamically created cells with LayoutInflater
+        initializeActionBar();
+        initializeGrid();
+
+
+    }
+
+    private void initializeActionBar() {
+        // Inflate the custom action bar layout
+        View customActionBar = getLayoutInflater().inflate(R.layout.custom_actionbar, null);
+
+        // Set the custom action bar layout as the action bar view
+        getSupportActionBar().setCustomView(customActionBar);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false); // Hide the default title
+    }
+
+    private void initializeGrid() {
+        // Initialize the grid
+        cell_tvs = new ArrayList<TextView>();
         GridLayout grid = (GridLayout) findViewById(R.id.gridLayout01);
         LayoutInflater li = LayoutInflater.from(this);
         for (int i = 0; i<ROW_COUNT; i++) {
@@ -53,7 +71,30 @@ public class MainActivity extends AppCompatActivity {
                 cell_tvs.add(tv);
             }
         }
+    }
 
+    private void placeMines() {
+        // Randomly place mines on the grid
+    }
+
+    private void calculateMineCounts() {
+        // Calculate the number of mines adjacent to each cell
+    }
+
+    private void revealCell(int row, int col) {
+        // Recursive method to reveal cells and handle adjacent empty cells
+    }
+
+    private void flagCell(int row, int col) {
+        // Toggle flag on a cell
+    }
+
+    private void checkGameStatus() {
+        // Check if the game is over (win or lose) and update UI
+    }
+
+    private void restartGame() {
+        // Reset the game state and UI
     }
 
     private int findIndexOfCellTextView(TextView tv) {
@@ -65,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickTV(View view){
+        // Handle cell clicks
         TextView tv = (TextView) view;
         int n = findIndexOfCellTextView(tv);
         int i = n/COLUMN_COUNT;
