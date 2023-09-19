@@ -63,6 +63,90 @@ public class MainActivity extends AppCompatActivity {
         getMineCountForAllCells();
     }
 
+    ////// GAME SETUP FUNCTIONS //////
+    private void initializeActionBar() {
+        // Inflate the custom action bar layout
+        View customActionBar = getLayoutInflater().inflate(R.layout.custom_actionbar, null);
+
+        // Set the custom action bar layout as the action bar view
+        getSupportActionBar().setCustomView(customActionBar);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false); // Hide the default title
+    }
+    private void initializeFlaggedMineCounter() {
+        // TextView: display count of flagged mines
+        final TextView flagView = findViewById(R.id.minesCounterNumber);
+        flagView.setText(String.valueOf(flagged_mines_count));
+    }
+
+    public void initializeTimer(){
+        final TextView timeView = findViewById(R.id.timerClockNumber);
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                timeView.setText(String.valueOf(curr_clock));
+                if (running) {
+                    curr_clock++;
+                }
+                handler.postDelayed(this, 1000);
+            }
+        });
+    }
+
+    private void flagMineSwitcherButton() {
+        // Find button via its ID
+        Button flagMineSwitcherButton = findViewById(R.id.flag_mine_switcher);
+
+        flagMineSwitcherButton.setOnClickListener(v -> {
+            // Toggle FLAGGING_MODE and update button text
+            FLAGGING_MODE = !FLAGGING_MODE;
+            flagMineSwitcherButton.setText(FLAGGING_MODE ? R.string.flag : R.string.pick);
+        });
+    }
+
+    private void initializeGrid() {
+        initializeFlaggedMineCounter();
+        initializeTimer();
+        flagMineSwitcherButton();
+
+        // Initialize the main grid
+        cell_tvs = new ArrayList<TextView>();
+        GridLayout grid = (GridLayout) findViewById(R.id.gridLayout01);
+        LayoutInflater li = LayoutInflater.from(this);
+        for (int i = 0; i<ROW_COUNT; i++) {
+            for (int j=0; j<COLUMN_COUNT; j++) {
+                TextView tv = (TextView) li.inflate(R.layout.custom_cell_layout, grid, false);
+                tv.setTextColor(Color.GREEN);
+                tv.setBackgroundColor(Color.GREEN);
+                tv.setOnClickListener(this::onClickTV);
+
+                GridLayout.LayoutParams lp = (GridLayout.LayoutParams) tv.getLayoutParams();
+                lp.rowSpec = GridLayout.spec(i);
+                lp.columnSpec = GridLayout.spec(j);
+
+                grid.addView(tv, lp);
+                cell_tvs.add(tv);
+            }
+        }
+    }
+
+    private void placeMines() {
+        // Randomly place mines on the grid
+        int mines_num = 0;
+        Random randomizer = new Random();
+
+        while (mines_num < MINE_COUNT) {
+            int r = randomizer.nextInt(ROW_COUNT);
+            int c = randomizer.nextInt(COLUMN_COUNT);
+
+            // If the randomized position doesn't already have mine, place mine there
+            if (mine_loc_array[r][c] == true) continue;
+            mine_loc_array[r][c] = true;
+            mines_num += 1;
+        }
+    }
+
     private void getMineCountForAllCells() {
         for (int i = 0; i < ROW_COUNT; i++) {
             for (int j = 0; j < COLUMN_COUNT; j++) {
@@ -83,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    ////// GAME LOGIC FUNCTIONS //////
     private void revealOtherCells(int row, int col) {
         for (int i = row - 1; i <= row + 1; i++) {
             for (int j = col - 1; j <= col + 1; j++) {
@@ -96,93 +181,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-    private void initializeActionBar() {
-        // Inflate the custom action bar layout
-        View customActionBar = getLayoutInflater().inflate(R.layout.custom_actionbar, null);
-
-        // Set the custom action bar layout as the action bar view
-        getSupportActionBar().setCustomView(customActionBar);
-        getSupportActionBar().setDisplayShowCustomEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(false); // Hide the default title
-    }
-
-    private void initializeGrid() {
-        initializeFlaggedMineCounter();
-        initializeTimer();
-        flagMineSwitcherButton();
-
-        // Initialize the main grid
-        cell_tvs = new ArrayList<TextView>();
-        GridLayout grid = (GridLayout) findViewById(R.id.gridLayout01);
-        LayoutInflater li = LayoutInflater.from(this);
-        for (int i = 0; i<ROW_COUNT; i++) {
-            for (int j=0; j<COLUMN_COUNT; j++) {
-                TextView tv = (TextView) li.inflate(R.layout.custom_cell_layout, grid, false);
-                //tv.setText(String.valueOf(i)+String.valueOf(j));
-                tv.setTextColor(Color.GREEN);
-                tv.setBackgroundColor(Color.GREEN);
-                tv.setOnClickListener(this::onClickTV);
-
-                GridLayout.LayoutParams lp = (GridLayout.LayoutParams) tv.getLayoutParams();
-                lp.rowSpec = GridLayout.spec(i);
-                lp.columnSpec = GridLayout.spec(j);
-
-                grid.addView(tv, lp);
-
-                cell_tvs.add(tv);
-            }
-        }
-    }
-
-    private void initializeFlaggedMineCounter() {
-        // TextView: display count of flagged mines
-        final TextView flagView = findViewById(R.id.minesCounterNumber);
-        flagView.setText(String.valueOf(flagged_mines_count));
-    }
-
-    private void flagMineSwitcherButton() {
-        // Find button via its ID
-        Button flagMineSwitcherButton = findViewById(R.id.flag_mine_switcher);
-
-        flagMineSwitcherButton.setOnClickListener(v -> {
-            // Toggle FLAGGING_MODE and update button text
-            FLAGGING_MODE = !FLAGGING_MODE;
-            flagMineSwitcherButton.setText(FLAGGING_MODE ? R.string.flag : R.string.pick);
-        });
-    }
-
-    public void initializeTimer(){
-        final TextView timeView = findViewById(R.id.timerClockNumber);
-        final Handler handler = new Handler();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                timeView.setText(String.valueOf(curr_clock));
-                if (running) {
-                    curr_clock++;
-                }
-                handler.postDelayed(this, 1000);
-            }
-        });
-    }
-
-    private void placeMines() {
-        // Randomly place mines on the grid
-        int mines_num = 0;
-        Random randomizer = new Random();
-
-        while (mines_num < MINE_COUNT) {
-            int r = randomizer.nextInt(ROW_COUNT);
-            int c = randomizer.nextInt(COLUMN_COUNT);
-
-            // If the randomized position doesn't already have mine, place mine there
-            if (mine_loc_array[r][c] == true) continue;
-            mine_loc_array[r][c] = true;
-            mines_num += 1;
-        }
-    }
-
 
     public void revealAllMines() {
         for (int r = 0; r < ROW_COUNT; r++) {
@@ -226,36 +224,6 @@ public class MainActivity extends AppCompatActivity {
                 return n;
         }
         return -1;
-    }
-
-    public void onClickTV(View view){
-        TextView tv = (TextView) view;
-        int n = findIndexOfCellTextView(tv);
-        int i = n/COLUMN_COUNT;
-        int j = n%COLUMN_COUNT;
-
-        if(!running) {
-            gameOver();
-        }
-        // Main game logic
-        else {
-            // FLAGGING_MODE: Flagging/Unflagging a cell
-            if (FLAGGING_MODE) {
-                if (enterFlaggingMode(tv, i, j) == true) tv.setText(R.string.flag);
-                else tv.setText(" ");
-            }
-            // !FLAGGING_MODE: click on bomb or miss a bomb
-            else if (!flag_loc_array[i][j] && !FLAGGING_MODE) {
-                enterMiningMode(tv, i, j);
-            }
-
-            // update the bool variables if the game condition is met
-            if (checkGameStatus() == true) {
-                running = false;
-                won = true;
-                gameOver();
-            }
-        }
     }
 
     public boolean enterFlaggingMode(TextView tv, int i, int j) {
@@ -315,4 +283,35 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    public void onClickTV(View view){
+        TextView tv = (TextView) view;
+        int n = findIndexOfCellTextView(tv);
+        int i = n/COLUMN_COUNT;
+        int j = n%COLUMN_COUNT;
+
+        if(!running) {
+            gameOver();
+        }
+        // Main game logic
+        else {
+            // FLAGGING_MODE: Flagging/Unflagging a cell
+            if (FLAGGING_MODE) {
+                if (enterFlaggingMode(tv, i, j) == true) tv.setText(R.string.flag);
+                else tv.setText(" ");
+            }
+            // !FLAGGING_MODE: click on bomb or miss a bomb
+            else if (!flag_loc_array[i][j] && !FLAGGING_MODE) {
+                enterMiningMode(tv, i, j);
+            }
+
+            // update the bool variables if the game condition is met
+            if (checkGameStatus() == true) {
+                running = false;
+                won = true;
+                gameOver();
+            }
+        }
+    }
+
 }
