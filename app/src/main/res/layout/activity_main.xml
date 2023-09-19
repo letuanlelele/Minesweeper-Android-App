@@ -6,33 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-<!--    <LinearLayout-->
-<!--        android:id="@+id/minesCounterLayout"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:orientation="horizontal"-->
-<!--        android:layout_marginTop="16dp"-->
-<!--        android:layout_marginStart="16dp"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent">-->
+    <androidx.gridlayout.widget.GridLayout
+        android:id="@+id/gridLayout01"
+        android:layout_width="350dp"
+        android:layout_height="440dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        app:columnCount="10"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:rowCount="12">
 
-<!--        <ImageView-->
-<!--            android:layout_width="32dp"-->
-<!--            android:layout_height="32dp"-->
-<!--            android:src="@string/flag"-->
-<!--            android:contentDescription="@string/flag" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/minesCounterTextView"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="0"-->
-<!--            android:textSize="18sp"-->
-<!--            android:textColor="#FF0000"-->
-<!--            android:layout_marginStart="8dp" />-->
-
-<!--    </LinearLayout>-->
-
+    </androidx.gridlayout.widget.GridLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -60,86 +50,57 @@
             android:id="@+id/minesCounterNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0"
-            android:textSize="32sp"
-            android:textColor="@color/black"
-            android:layout_marginTop="16dp"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="2dp"
-            android:layout_marginBottom="2dp" />
+            android:layout_marginBottom="2dp"
+            android:text="0"
+            android:textColor="@color/black"
+            android:textSize="32sp" />
 
+<!--        timer clock icon-->
+        <TextView
+            android:id="@+id/timerClockIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="120dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginBottom="2dp"
+            android:text="@string/clock"
+            android:textSize="32sp" />
 
+<!--        timer clock number-->
+        <TextView
+            android:id="@+id/timerClockNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginBottom="2dp"
+            android:text="0"
+            android:textColor="@color/black"
+            android:textSize="32sp" />
 
     </LinearLayout>
 
 
-    <androidx.gridlayout.widget.GridLayout
-        android:id="@+id/gridLayout01"
-        android:layout_width="350dp"
-        android:layout_height="440dp"
-        android:layout_gravity="center"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
-        app:columnCount="10"
+
+
+    <Button
+        android:id="@+id/flag_mine_switcher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:padding="0dp"
+        android:text="@string/pick"
+        android:textSize="48sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:rowCount="12">
+        app:layout_constraintVertical_bias="0.965" />
 
-
-
-        <!--        Has BOMB icon here -->
-<!--        <TextView-->
-<!--            android:id="@+id/textView01"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginStart="2dp"-->
-<!--            android:layout_marginTop="2dp"-->
-<!--            android:layout_marginEnd="2dp"-->
-<!--            android:layout_marginBottom="2dp"-->
-<!--            android:width="64dp"-->
-<!--            android:height="64dp"-->
-<!--            android:text="@string/mine"-->
-<!--            android:textAlignment="center"-->
-<!--            android:textSize="32sp"-->
-<!--            app:layout_column="1"-->
-<!--            app:layout_row="0" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/textView10"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginStart="2dp"-->
-<!--            android:layout_marginTop="2dp"-->
-<!--            android:layout_marginEnd="2dp"-->
-<!--            android:layout_marginBottom="2dp"-->
-<!--            android:width="64dp"-->
-<!--            android:height="64dp"-->
-<!--            android:text="10"-->
-<!--            android:textAlignment="center"-->
-<!--            android:textSize="32sp"-->
-<!--            app:layout_column="0"-->
-<!--            app:layout_row="1" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/textView11"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginStart="2dp"-->
-<!--            android:layout_marginTop="2dp"-->
-<!--            android:layout_marginEnd="2dp"-->
-<!--            android:layout_marginBottom="2dp"-->
-<!--            android:width="64dp"-->
-<!--            android:height="64dp"-->
-<!--            android:text="11"-->
-<!--            android:textAlignment="center"-->
-<!--            android:textSize="32sp"-->
-<!--            app:layout_column="1"-->
-<!--            app:layout_row="1" />-->
-
-    </androidx.gridlayout.widget.GridLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

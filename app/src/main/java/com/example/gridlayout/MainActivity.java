@@ -6,17 +6,37 @@ import androidx.gridlayout.widget.GridLayout;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.List;
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
     ///// My variables /////
     private static final int COLUMN_COUNT = 10;
     private static final int ROW_COUNT = 12;
     private static final int MINE_COUNT = 4;
+    private boolean FLAGGING_MODE = false;
+    private int flagged_mines_count = 4;
+    private boolean[][] mine_loc_array;
+    private boolean[][] flag_loc_array;
+
+    // Not mine
+    private int clock = 0;
+    private boolean running = true;
+
+    private boolean gameWin = false;
+
+
+
+    private int[][] mineCount;
+    private boolean[][] openLocations;
 
     // save the TextViews of all cells in an array, so later on,
     // when a TextView is clicked, we know which cell it is
@@ -32,9 +52,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //implement the boolean array for game logic purpose
+        mine_loc_array = new boolean[ROW_COUNT][COLUMN_COUNT];
+        flag_loc_array = new boolean[ROW_COUNT][COLUMN_COUNT];
 
+        openLocations = new boolean[ROW_COUNT][COLUMN_COUNT];
+        mineCount = new int[ROW_COUNT][COLUMN_COUNT];
+
+        // Initialize core elements
         initializeActionBar();
         initializeGrid();
+        placeMines();
+
+
+
+
+
+
+
 
 
     }
@@ -50,7 +85,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeGrid() {
-        // Initialize the grid
+        initializeFlaggedMineCounter();
+        initializeTimer();
+        flagMineSwitcherButton();
+
+        // Initialize the main grid
         cell_tvs = new ArrayList<TextView>();
         GridLayout grid = (GridLayout) findViewById(R.id.gridLayout01);
         LayoutInflater li = LayoutInflater.from(this);
@@ -73,8 +112,52 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void initializeFlaggedMineCounter() {
+        // TextView: display count of flagged mines
+        final TextView flagView = findViewById(R.id.minesCounterNumber);
+        flagView.setText(String.valueOf(flagged_mines_count));
+    }
+
+    private void flagMineSwitcherButton() {
+        // Find button via its ID
+        Button flagMineSwitcherButton = findViewById(R.id.flag_mine_switcher);
+
+        flagMineSwitcherButton.setOnClickListener(v -> {
+            // Toggle FLAGGING_MODE and update button text
+            FLAGGING_MODE = !FLAGGING_MODE;
+            flagMineSwitcherButton.setText(FLAGGING_MODE ? R.string.flag : R.string.pick);
+        });
+    }
+
+    public void initializeTimer(){
+        final TextView timeView = findViewById(R.id.timerClockNumber);
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                timeView.setText(String.valueOf(clock));
+                if (running) {
+                    clock++;
+                }
+                handler.postDelayed(this, 1000);
+            }
+        });
+    }
+
     private void placeMines() {
         // Randomly place mines on the grid
+        int mines_num = 0;
+        Random randomizer = new Random();
+
+        while (mines_num < MINE_COUNT) {
+            int r = randomizer.nextInt(ROW_COUNT);
+            int c = randomizer.nextInt(COLUMN_COUNT);
+
+            // If the randomized position doesn't already have mine, place mine there
+            if (mine_loc_array[r][c] == true) continue;
+            mine_loc_array[r][c] = true;
+            mines_num += 1;
+        }
     }
 
     private void calculateMineCounts() {
