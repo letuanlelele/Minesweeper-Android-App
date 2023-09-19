@@ -86,8 +86,6 @@
     </LinearLayout>
 
 
-
-
     <Button
         android:id="@+id/flag_mine_switcher"
         android:layout_width="wrap_content"

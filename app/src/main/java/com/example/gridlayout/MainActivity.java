@@ -67,13 +67,10 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < ROW_COUNT; i++) {
             for (int j = 0; j < COLUMN_COUNT; j++) {
                 if (!mine_loc_array[i][j]) {
-
-//                    int count = helper(i, j);
-//                    int count = countAdjacentMines(i, j);
                     int count = 0;
+                    // loop around 8 adjacent cells to find bombs
                     for (int r = i - 1; r <= i + 1; r++) {
                         for (int c = j - 1; c <= j + 1; c++) {
-                            // condition to check if there is a bomb next to that cell
                             if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT && mine_loc_array[r][c]) {
                                 count++;
                             }
@@ -85,34 +82,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    private int countAdjacentMines(int row, int col) {
-//
-//        int count = 0;
-//
-//        // loop around the current cell
-//        for (int r = row - 1; r <= row + 1; r++) {
-//            for (int c = col - 1; c <= col + 1; c++) {
-//                // condition to check if there is a bomb next to that cell
-//                if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT && mine_loc_array[r][c]) {
-//                    count++;
-//                }
-//            }
-//        }
-//
-//        return count;
-//    }
 
-    private void revealAdjacentCells(int row, int col) {
-        // looping through the surrounding cell of the current cell
-        for (int r = row - 1; r <= row + 1; r++) {
-            for (int c = col - 1; c <= col + 1; c++) {
-                // make sure that it is within the boundary of the game
-                if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT) {
-                    // get the current position for tv from cell_tvs
-                    TextView tv = cell_tvs.get(r * COLUMN_COUNT + c);
-                    if (tv.getCurrentTextColor() != Color.GRAY && !mine_loc_array[r][c]) {
-                        // Reveal adjacent cell if it's not already revealed or a bomb
-                        revealed_loc_array[r][c] = true;
+    private void revealOtherCells(int row, int col) {
+        for (int i = row - 1; i <= row + 1; i++) {
+            for (int j = col - 1; j <= col + 1; j++) {
+                if (i >= 0 && i < ROW_COUNT && j >= 0 && j < COLUMN_COUNT) {
+                    TextView tv = cell_tvs.get(i * COLUMN_COUNT + j);
+                    if (tv.getCurrentTextColor() != Color.GRAY && !mine_loc_array[i][j]) {
+                        revealed_loc_array[i][j] = true;
                         onClickTV(tv);
                     }
                 }
@@ -215,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                     tv.setBackgroundColor(Color.RED);
                     tv.setText(bomb_emoji);
 
-                    // Add a fade-in animation
+                    // Fade-in animation
                     AlphaAnimation animation = new AlphaAnimation(0, 1);
                     animation.setDuration(300); // Set the duration in milliseconds
                     tv.startAnimation(animation);
@@ -239,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
     private void gameOver() {
         Intent intent = new Intent(MainActivity.this, ResultLandingPage.class);
         intent.putExtra("won", won);
-        intent.putExtra("clock", curr_clock);
+        intent.putExtra("curr_clock", curr_clock);
         startActivity(intent);
     }
 
@@ -251,82 +228,12 @@ public class MainActivity extends AppCompatActivity {
         return -1;
     }
 
-//    public void onClickTV(View view){
-//        TextView tv = (TextView) view;
-//        int n = findIndexOfCellTextView(tv);
-//        int i = n/COLUMN_COUNT;
-//        int j = n%COLUMN_COUNT;
-//        // if statement to see if the program is still running, if not then move to the result page
-//        if(!running) {
-//            Intent intent = new Intent(MainActivity.this, ResultLandingPage.class);
-//            // Pass the gameWin and clock values as extras
-//            intent.putExtra("gameWin", won);
-//            intent.putExtra("clock", curr_clock);
-//            // Start the Result page
-//            startActivity(intent);
-//        }
-//        // game logic implemented here
-//        else {
-//            // Clicked on a bomb
-//            if (mine_loc_array[i][j] && !FLAGGING_MODE && !flag_loc_array[i][j]) {
-//                tv.setText("\uD83D\uDCA3");
-//                tv.setBackgroundColor(Color.RED);
-//                running = false;
-//                // call the reveal mine function
-//                revealAllMines();
-//            }
-//            // flagging the squares that are not opened yet
-//            else if (FLAGGING_MODE) {
-//                if (!flag_loc_array[i][j] & !revealed_loc_array[i][j]) {
-//                    tv.setText(R.string.flag);
-//                    flagged_mines_count--;
-//                    flag_loc_array[i][j] = true;
-//                    revealed_loc_array[i][j] = true;
-//                }
-//                else if (flag_loc_array[i][j]){
-//                    tv.setText("");
-//                    flagged_mines_count++;
-//                    flag_loc_array[i][j] = false;
-//                    revealed_loc_array[i][j] = false;
-//                }
-//                // update the number of flags in TextView
-//                TextView flagCountTextView = findViewById(R.id.minesCounterFlag);
-//                flagCountTextView.setText(String.valueOf(flagged_mines_count));
-//
-//            }
-//            // not in flag mode and the square is not yet explored
-//            else {
-//                if (!flag_loc_array[i][j] && !FLAGGING_MODE) {
-//                    tv.setTextColor(Color.GRAY);
-//                    tv.setBackgroundColor(Color.LTGRAY);
-//                    revealed_loc_array[i][j] = true;
-//                    int adjacentBombCount = mine_count_at_cell_array[i][j];
-//
-//                    if (adjacentBombCount > 0) {
-//                        tv.setText(String.valueOf(adjacentBombCount));
-//                    } else {
-//                        revealAdjacentCells(i, j);
-//                        tv.setText("");
-//                    }
-//                }
-//            }
-//
-//            // update the bool variables if the game condition is met
-//            if (checkGameStatus()) {
-//                running = false;
-//                won = true;
-//
-//            }
-//        }
-//
-//    }
     public void onClickTV(View view){
         TextView tv = (TextView) view;
         int n = findIndexOfCellTextView(tv);
         int i = n/COLUMN_COUNT;
         int j = n%COLUMN_COUNT;
 
-        // if statement to see if the program is still running, if not then move to the result page
         if(!running) {
             gameOver();
         }
@@ -403,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
                 tv.setText(String.valueOf(temp));
             }
             else {
-                revealAdjacentCells(i, j);
+                revealOtherCells(i, j);
                 tv.setText(" ");
             }
         }

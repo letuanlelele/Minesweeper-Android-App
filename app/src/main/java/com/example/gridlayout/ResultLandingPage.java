@@ -8,31 +8,23 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ResultLandingPage extends AppCompatActivity{
-    // NEED CHANGE
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.result_landing_page);
 
-        TextView resultMessage = findViewById(R.id.resultMessage);
-        Button playAgain = findViewById(R.id.playAgain);
+        TextView result = findViewById(R.id.result);
+        Button play_again = findViewById(R.id.play_again);
 
-        // get the value from MainActivity
         boolean won = getIntent().getBooleanExtra("won", false);
         int curr_clock = getIntent().getIntExtra("curr_clock", 0);
 
-        // have different output depends on the result
-        String result;
-        if(won){
-            result = "Used " + curr_clock + " seconds.\nYou won.\nGood job!";
-        }
-        else{
-            result = "You lost.\nTry again!";
-        }
-        resultMessage.setText(result);
+        String resultMessage;
+        if(won == true) resultMessage = "Used " + curr_clock + " seconds.\nYou won.\nGood job!";
+        else resultMessage = "You lost.\nReplay?";
+        result.setText(resultMessage);
 
-        // allow the user to run the program again
-        playAgain.setOnClickListener(view -> {
+        play_again.setOnClickListener(view -> {
             Intent intent = new Intent(ResultLandingPage.this, MainActivity.class);
             startActivity(intent);
         });
