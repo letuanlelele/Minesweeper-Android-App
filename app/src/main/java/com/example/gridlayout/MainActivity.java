@@ -70,31 +70,35 @@ public class MainActivity extends AppCompatActivity {
         initializeActionBar();
         initializeGrid();
         placeMines();
-        getMineCountForAllCells();
+//        getMineCountForAllCells();
     }
 
     private void getMineCountForAllCells() {
-        // NEED CHANGE
         for (int i = 0; i < ROW_COUNT; i++) {
             for (int j = 0; j < COLUMN_COUNT; j++) {
                 if (!mine_loc_array[i][j]) {
-                    int count = 0;
-                    for (int r = i -1; r <= r+1; r++) {
-                        for (int c = j-1; j <= c; j++) {
-                            if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT && mine_loc_array[r][c]) {
-                                count++;
-                            }
-                        }
-                    }
+
+                    int count = helper(i, j);
                     mine_count_at_cell_array[i][j] = count;
                 }
             }
         }
     }
+    private int helper (int i, int j) {
+        // go around the 8 cells adjacent to the current cell to count the total mines
+        int count = 0;
+        for (int r = i -1; r <= r+1; r++) {
+            for (int c = j-1; j <= c; j++) {
+                if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT && mine_loc_array[r][c]) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
 
     private void revealAdjacentCells(int row, int col) {
         // looping through the surrounding cell of the current cell
-        // NEED CHANGE
         for (int r = row - 1; r <= row + 1; r++) {
             for (int c = col - 1; c <= col + 1; c++) {
                 // make sure that it is within the boundary of the game
@@ -199,7 +203,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void revealAllMines() {
-        // NEED CHANGE
         for (int r = 0; r < ROW_COUNT; r++) {
             for (int c = 0; c < COLUMN_COUNT; c++) {
                 if (mine_loc_array[r][c] == true) {
@@ -230,6 +233,15 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    private void gameOver() {
+        Intent intent = new Intent(MainActivity.this, ResultLandingPage.class);
+        // Pass the gameWin and clock values as extras
+        intent.putExtra("won", won);
+        intent.putExtra("clock", curr_clock);
+        // Start the Result page
+        startActivity(intent);
+    }
+
 
 
     private int findIndexOfCellTextView(TextView tv) {
@@ -248,12 +260,7 @@ public class MainActivity extends AppCompatActivity {
 
         // if statement to see if the program is still running, if not then move to the result page
         if(!running) {
-            Intent intent = new Intent(MainActivity.this, ResultLandingPage.class);
-            // Pass the gameWin and clock values as extras
-            intent.putExtra("won", won);
-            intent.putExtra("clock", curr_clock);
-            // Start the Result page
-            startActivity(intent);
+            gameOver();
         }
         // Main game logic
         else {
@@ -278,7 +285,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean enterFlaggingMode(TextView tv, int i, int j) {
         // unflag
         if (flag_loc_array[i][j]){
-//            tv.setText(" ");
             flag_loc_array[i][j] = false;
             revealed_loc_array[i][j] = false;
             flagged_mines_count++;
@@ -288,7 +294,6 @@ public class MainActivity extends AppCompatActivity {
         }
         // flag
         else if (!revealed_loc_array[i][j] && !flag_loc_array[i][j]) {
-//            tv.setText(R.string.flag);
             flag_loc_array[i][j] = true;
             revealed_loc_array[i][j] = true;
             flagged_mines_count--;
@@ -308,13 +313,22 @@ public class MainActivity extends AppCompatActivity {
             tv.setText(bomb_emoji);
             running = false;
             revealAllMines();
+
+            Handler handler = new Handler();
+            long delayMilliseconds = 3000;
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    gameOver();
+                }
+            }, delayMilliseconds);
         }
         // Didn't click on bomb
         else {
             // NEED CHANGE
-            revealed_loc_array[i][j] = true;
             tv.setTextColor(Color.GRAY);
             tv.setBackgroundColor(Color.LTGRAY);
+            revealed_loc_array[i][j] = true;
 
             int adjacentBombCount = mine_count_at_cell_array[i][j];
 
@@ -325,6 +339,7 @@ public class MainActivity extends AppCompatActivity {
                 revealAdjacentCells(i, j);
                 tv.setText(" ");
             }
+
         }
     }
 }
