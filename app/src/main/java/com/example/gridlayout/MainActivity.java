@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         initializeActionBar();
         initializeGrid();
         placeMines();
-//        getMineCountForAllCells();
+        getMineCountForAllCells();
     }
 
     private void getMineCountForAllCells() {
@@ -78,22 +78,37 @@ public class MainActivity extends AppCompatActivity {
             for (int j = 0; j < COLUMN_COUNT; j++) {
                 if (!mine_loc_array[i][j]) {
 
-                    int count = helper(i, j);
+//                    int count = helper(i, j);
+//                    int count = countAdjacentMines(i, j);
+                    int count = 0;
+                    for (int r = i - 1; r <= i + 1; r++) {
+                        for (int c = j - 1; c <= j + 1; c++) {
+                            // condition to check if there is a bomb next to that cell
+                            if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT && mine_loc_array[r][c]) {
+                                count++;
+                            }
+                        }
+                    }
                     mine_count_at_cell_array[i][j] = count;
                 }
             }
         }
     }
-    private int helper (int i, int j) {
-        // go around the 8 cells adjacent to the current cell to count the total mines
+
+    private int countAdjacentMines(int row, int col) {
+
         int count = 0;
-        for (int r = i -1; r <= r+1; r++) {
-            for (int c = j-1; j <= c; j++) {
+
+        // loop around the current cell
+        for (int r = row - 1; r <= row + 1; r++) {
+            for (int c = col - 1; c <= col + 1; c++) {
+                // condition to check if there is a bomb next to that cell
                 if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT && mine_loc_array[r][c]) {
                     count++;
                 }
             }
         }
+
         return count;
     }
 
@@ -252,6 +267,75 @@ public class MainActivity extends AppCompatActivity {
         return -1;
     }
 
+//    public void onClickTV(View view){
+//        TextView tv = (TextView) view;
+//        int n = findIndexOfCellTextView(tv);
+//        int i = n/COLUMN_COUNT;
+//        int j = n%COLUMN_COUNT;
+//        // if statement to see if the program is still running, if not then move to the result page
+//        if(!running) {
+//            Intent intent = new Intent(MainActivity.this, ResultLandingPage.class);
+//            // Pass the gameWin and clock values as extras
+//            intent.putExtra("gameWin", won);
+//            intent.putExtra("clock", curr_clock);
+//            // Start the Result page
+//            startActivity(intent);
+//        }
+//        // game logic implemented here
+//        else {
+//            // Clicked on a bomb
+//            if (mine_loc_array[i][j] && !FLAGGING_MODE && !flag_loc_array[i][j]) {
+//                tv.setText("\uD83D\uDCA3");
+//                tv.setBackgroundColor(Color.RED);
+//                running = false;
+//                // call the reveal mine function
+//                revealAllMines();
+//            }
+//            // flagging the squares that are not opened yet
+//            else if (FLAGGING_MODE) {
+//                if (!flag_loc_array[i][j] & !revealed_loc_array[i][j]) {
+//                    tv.setText(R.string.flag);
+//                    flagged_mines_count--;
+//                    flag_loc_array[i][j] = true;
+//                    revealed_loc_array[i][j] = true;
+//                }
+//                else if (flag_loc_array[i][j]){
+//                    tv.setText("");
+//                    flagged_mines_count++;
+//                    flag_loc_array[i][j] = false;
+//                    revealed_loc_array[i][j] = false;
+//                }
+//                // update the number of flags in TextView
+//                TextView flagCountTextView = findViewById(R.id.minesCounterFlag);
+//                flagCountTextView.setText(String.valueOf(flagged_mines_count));
+//
+//            }
+//            // not in flag mode and the square is not yet explored
+//            else {
+//                if (!flag_loc_array[i][j] && !FLAGGING_MODE) {
+//                    tv.setTextColor(Color.GRAY);
+//                    tv.setBackgroundColor(Color.LTGRAY);
+//                    revealed_loc_array[i][j] = true;
+//                    int adjacentBombCount = mine_count_at_cell_array[i][j];
+//
+//                    if (adjacentBombCount > 0) {
+//                        tv.setText(String.valueOf(adjacentBombCount));
+//                    } else {
+//                        revealAdjacentCells(i, j);
+//                        tv.setText("");
+//                    }
+//                }
+//            }
+//
+//            // update the bool variables if the game condition is met
+//            if (checkGameStatus()) {
+//                running = false;
+//                won = true;
+//
+//            }
+//        }
+//
+//    }
     public void onClickTV(View view){
         TextView tv = (TextView) view;
         int n = findIndexOfCellTextView(tv);
