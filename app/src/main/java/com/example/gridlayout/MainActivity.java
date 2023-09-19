@@ -78,30 +78,18 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < ROW_COUNT; i++) {
             for (int j = 0; j < COLUMN_COUNT; j++) {
                 if (!mine_loc_array[i][j]) {
-                    int count = getMineCountAtCell(i, j);
+                    int count = 0;
+                    for (int r = i -1; r <= r+1; r++) {
+                        for (int c = j-1; j <= c; j++) {
+                            if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT && mine_loc_array[r][c]) {
+                                count++;
+                            }
+                        }
+                    }
                     mine_count_at_cell_array[i][j] = count;
                 }
             }
         }
-    }
-
-    private int getMineCountAtCell(int row, int col) {
-        // Explore the 8 cells adjacent to current cell
-        // Count how many mines there are total
-        // NEED CHANGE
-        int count = 0;
-
-        // loop around the current cell
-        for (int r = row - 1; r <= row + 1; r++) {
-            for (int c = col - 1; c <= col + 1; c++) {
-                // condition to check if there is a bomb next to that cell
-                if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT && mine_loc_array[r][c]) {
-                    count++;
-                }
-            }
-        }
-
-        return count;
     }
 
     private void revealAdjacentCells(int row, int col) {
@@ -252,23 +240,6 @@ public class MainActivity extends AppCompatActivity {
         return -1;
     }
 
-//    public void onClickTV(View view){
-//        // Handle cell clicks
-//        TextView tv = (TextView) view;
-//        int n = findIndexOfCellTextView(tv);
-//        int i = n/COLUMN_COUNT;
-//        int j = n%COLUMN_COUNT;
-//
-//        tv.setText(String.valueOf(i)+String.valueOf(j));
-//        if (tv.getCurrentTextColor() == Color.GRAY) {
-//            tv.setTextColor(Color.GREEN);
-//            tv.setBackgroundColor(Color.parseColor("lime"));
-//        }else {
-//            tv.setTextColor(Color.GRAY);
-//            tv.setBackgroundColor(Color.LTGRAY);
-//        }
-//    }
-
     public void onClickTV(View view){
         TextView tv = (TextView) view;
         int n = findIndexOfCellTextView(tv);
@@ -290,7 +261,6 @@ public class MainActivity extends AppCompatActivity {
             if (FLAGGING_MODE) {
                 if (enterFlaggingMode(tv, i, j) == true) tv.setText(R.string.flag);
                 else tv.setText(" ");
-
             }
             // !FLAGGING_MODE: click on bomb or miss a bomb
             else if (!flag_loc_array[i][j] && !FLAGGING_MODE) {
