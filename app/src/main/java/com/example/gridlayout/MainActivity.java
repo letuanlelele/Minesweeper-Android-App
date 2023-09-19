@@ -3,6 +3,7 @@ package com.example.gridlayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.gridlayout.widget.GridLayout;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -11,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.view.animation.AlphaAnimation;
+
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -19,6 +22,7 @@ import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
     ///// My variables /////
+    private static final String bomb_emoji = "\uD83D\uDCA3";
     private static final int COLUMN_COUNT = 10;
     private static final int ROW_COUNT = 12;
     private static final int MINE_COUNT = 4;
@@ -26,17 +30,21 @@ public class MainActivity extends AppCompatActivity {
     private int flagged_mines_count = 4;
     private boolean[][] mine_loc_array;
     private boolean[][] flag_loc_array;
+    private boolean[][] revealed_loc_array;
+    private boolean won = false;
+
+
 
     // Not mine
-    private int clock = 0;
+    private int curr_clock = 0;
     private boolean running = true;
 
-    private boolean gameWin = false;
 
 
 
-    private int[][] mineCount;
-    private boolean[][] openLocations;
+
+    private int[][] mine_count_at_cell_array;
+
 
     // save the TextViews of all cells in an array, so later on,
     // when a TextView is clicked, we know which cell it is
@@ -55,23 +63,64 @@ public class MainActivity extends AppCompatActivity {
         //implement the boolean array for game logic purpose
         mine_loc_array = new boolean[ROW_COUNT][COLUMN_COUNT];
         flag_loc_array = new boolean[ROW_COUNT][COLUMN_COUNT];
-
-        openLocations = new boolean[ROW_COUNT][COLUMN_COUNT];
-        mineCount = new int[ROW_COUNT][COLUMN_COUNT];
+        revealed_loc_array = new boolean[ROW_COUNT][COLUMN_COUNT];
+        mine_count_at_cell_array = new int[ROW_COUNT][COLUMN_COUNT];
 
         // Initialize core elements
         initializeActionBar();
         initializeGrid();
         placeMines();
+        getMineCountForAllCells();
+    }
 
+    private void getMineCountForAllCells() {
+        // NEED CHANGE
+        for (int i = 0; i < ROW_COUNT; i++) {
+            for (int j = 0; j < COLUMN_COUNT; j++) {
+                if (!mine_loc_array[i][j]) {
+                    int count = getMineCountAtCell(i, j);
+                    mine_count_at_cell_array[i][j] = count;
+                }
+            }
+        }
+    }
 
+    private int getMineCountAtCell(int row, int col) {
+        // Explore the 8 cells adjacent to current cell
+        // Count how many mines there are total
+        // NEED CHANGE
+        int count = 0;
 
+        // loop around the current cell
+        for (int r = row - 1; r <= row + 1; r++) {
+            for (int c = col - 1; c <= col + 1; c++) {
+                // condition to check if there is a bomb next to that cell
+                if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT && mine_loc_array[r][c]) {
+                    count++;
+                }
+            }
+        }
 
+        return count;
+    }
 
-
-
-
-
+    private void revealAdjacentCells(int row, int col) {
+        // looping through the surrounding cell of the current cell
+        // NEED CHANGE
+        for (int r = row - 1; r <= row + 1; r++) {
+            for (int c = col - 1; c <= col + 1; c++) {
+                // make sure that it is within the boundary of the game
+                if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT) {
+                    // get the current position for tv from cell_tvs
+                    TextView tv = cell_tvs.get(r * COLUMN_COUNT + c);
+                    if (tv.getCurrentTextColor() != Color.GRAY && !mine_loc_array[r][c]) {
+                        // Reveal adjacent cell if it's not already revealed or a bomb
+                        revealed_loc_array[r][c] = true;
+                        onClickTV(tv);
+                    }
+                }
+            }
+        }
     }
 
     private void initializeActionBar() {
@@ -135,9 +184,9 @@ public class MainActivity extends AppCompatActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                timeView.setText(String.valueOf(clock));
+                timeView.setText(String.valueOf(curr_clock));
                 if (running) {
-                    clock++;
+                    curr_clock++;
                 }
                 handler.postDelayed(this, 1000);
             }
@@ -160,25 +209,40 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void calculateMineCounts() {
-        // Calculate the number of mines adjacent to each cell
+
+    public void revealAllMines() {
+        // NEED CHANGE
+        for (int r = 0; r < ROW_COUNT; r++) {
+            for (int c = 0; c < COLUMN_COUNT; c++) {
+                if (mine_loc_array[r][c] == true) {
+                    final TextView tv = cell_tvs.get(r * COLUMN_COUNT + c);
+                    tv.setBackgroundColor(Color.RED);
+                    tv.setText(bomb_emoji);
+
+                    // Add a fade-in animation
+                    AlphaAnimation animation = new AlphaAnimation(0, 1);
+                    animation.setDuration(300); // Set the duration in milliseconds
+                    tv.startAnimation(animation);
+                }
+            }
+        }
     }
 
-    private void revealCell(int row, int col) {
-        // Recursive method to reveal cells and handle adjacent empty cells
+    private boolean checkGameStatus() {
+        // Check if the game is over (true==win, false==lose and update UI
+        // loop through the revealed_loc_array to see if all cells are revealed
+        // return false if one or more cell(s) is not revealed
+
+        // NEED CHANGE
+        for (int i = 0; i < ROW_COUNT; i++){
+            for (int j = 0; j < COLUMN_COUNT; j++){
+                if(revealed_loc_array[i][j] == false) return false;
+            }
+        }
+        return true;
     }
 
-    private void flagCell(int row, int col) {
-        // Toggle flag on a cell
-    }
 
-    private void checkGameStatus() {
-        // Check if the game is over (win or lose) and update UI
-    }
-
-    private void restartGame() {
-        // Reset the game state and UI
-    }
 
     private int findIndexOfCellTextView(TextView tv) {
         for (int n=0; n<cell_tvs.size(); n++) {
@@ -188,19 +252,109 @@ public class MainActivity extends AppCompatActivity {
         return -1;
     }
 
+//    public void onClickTV(View view){
+//        // Handle cell clicks
+//        TextView tv = (TextView) view;
+//        int n = findIndexOfCellTextView(tv);
+//        int i = n/COLUMN_COUNT;
+//        int j = n%COLUMN_COUNT;
+//
+//        tv.setText(String.valueOf(i)+String.valueOf(j));
+//        if (tv.getCurrentTextColor() == Color.GRAY) {
+//            tv.setTextColor(Color.GREEN);
+//            tv.setBackgroundColor(Color.parseColor("lime"));
+//        }else {
+//            tv.setTextColor(Color.GRAY);
+//            tv.setBackgroundColor(Color.LTGRAY);
+//        }
+//    }
+
     public void onClickTV(View view){
-        // Handle cell clicks
         TextView tv = (TextView) view;
         int n = findIndexOfCellTextView(tv);
         int i = n/COLUMN_COUNT;
         int j = n%COLUMN_COUNT;
-        tv.setText(String.valueOf(i)+String.valueOf(j));
-        if (tv.getCurrentTextColor() == Color.GRAY) {
-            tv.setTextColor(Color.GREEN);
-            tv.setBackgroundColor(Color.parseColor("lime"));
-        }else {
+
+        // if statement to see if the program is still running, if not then move to the result page
+        if(!running) {
+            Intent intent = new Intent(MainActivity.this, ResultLandingPage.class);
+            // Pass the gameWin and clock values as extras
+            intent.putExtra("won", won);
+            intent.putExtra("clock", curr_clock);
+            // Start the Result page
+            startActivity(intent);
+        }
+        // Main game logic
+        else {
+            // FLAGGING_MODE: Flagging/Unflagging a cell
+            if (FLAGGING_MODE) {
+                if (enterFlaggingMode(tv, i, j) == true) tv.setText(R.string.flag);
+                else tv.setText(" ");
+
+            }
+            // !FLAGGING_MODE: click on bomb or miss a bomb
+            else if (!flag_loc_array[i][j] && !FLAGGING_MODE) {
+                enterMiningMode(tv, i, j);
+            }
+
+            // update the bool variables if the game condition is met
+            if (checkGameStatus() == true) {
+                running = false;
+                won = true;
+            }
+        }
+    }
+
+    public boolean enterFlaggingMode(TextView tv, int i, int j) {
+        // unflag
+        if (flag_loc_array[i][j]){
+//            tv.setText(" ");
+            flag_loc_array[i][j] = false;
+            revealed_loc_array[i][j] = false;
+            flagged_mines_count++;
+            TextView temp = findViewById(R.id.minesCounterNumber);
+            temp.setText(String.valueOf(flagged_mines_count));
+            return false;
+        }
+        // flag
+        else if (!revealed_loc_array[i][j] && !flag_loc_array[i][j]) {
+//            tv.setText(R.string.flag);
+            flag_loc_array[i][j] = true;
+            revealed_loc_array[i][j] = true;
+            flagged_mines_count--;
+            TextView temp = findViewById(R.id.minesCounterNumber);
+            temp.setText(String.valueOf(flagged_mines_count));
+            return true;
+        }
+
+        return false;
+    }
+
+    public void enterMiningMode(TextView tv, int i, int j) {
+        // Clicked on a bomb && not in FLAGGING_MODE && cell isn't flagged
+        // Game over
+        if (mine_loc_array[i][j] == true) {
+            tv.setBackgroundColor(Color.RED);
+            tv.setText(bomb_emoji);
+            running = false;
+            revealAllMines();
+        }
+        // Didn't click on bomb
+        else {
+            // NEED CHANGE
+            revealed_loc_array[i][j] = true;
             tv.setTextColor(Color.GRAY);
             tv.setBackgroundColor(Color.LTGRAY);
+
+            int adjacentBombCount = mine_count_at_cell_array[i][j];
+
+            if (adjacentBombCount > 0) {
+                tv.setText(String.valueOf(adjacentBombCount));
+            }
+            else {
+                revealAdjacentCells(i, j);
+                tv.setText(" ");
+            }
         }
     }
 }
