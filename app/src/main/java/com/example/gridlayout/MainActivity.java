@@ -31,20 +31,10 @@ public class MainActivity extends AppCompatActivity {
     private boolean[][] mine_loc_array;
     private boolean[][] flag_loc_array;
     private boolean[][] revealed_loc_array;
+    private int[][] mine_count_at_cell_array;
     private boolean won = false;
-
-
-
-    // Not mine
     private int curr_clock = 0;
     private boolean running = true;
-
-
-
-
-
-    private int[][] mine_count_at_cell_array;
-
 
     // save the TextViews of all cells in an array, so later on,
     // when a TextView is clicked, we know which cell it is
@@ -95,22 +85,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private int countAdjacentMines(int row, int col) {
-
-        int count = 0;
-
-        // loop around the current cell
-        for (int r = row - 1; r <= row + 1; r++) {
-            for (int c = col - 1; c <= col + 1; c++) {
-                // condition to check if there is a bomb next to that cell
-                if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT && mine_loc_array[r][c]) {
-                    count++;
-                }
-            }
-        }
-
-        return count;
-    }
+//    private int countAdjacentMines(int row, int col) {
+//
+//        int count = 0;
+//
+//        // loop around the current cell
+//        for (int r = row - 1; r <= row + 1; r++) {
+//            for (int c = col - 1; c <= col + 1; c++) {
+//                // condition to check if there is a bomb next to that cell
+//                if (r >= 0 && r < ROW_COUNT && c >= 0 && c < COLUMN_COUNT && mine_loc_array[r][c]) {
+//                    count++;
+//                }
+//            }
+//        }
+//
+//        return count;
+//    }
 
     private void revealAdjacentCells(int row, int col) {
         // looping through the surrounding cell of the current cell
@@ -238,8 +228,6 @@ public class MainActivity extends AppCompatActivity {
         // Check if the game is over (true==win, false==lose and update UI
         // loop through the revealed_loc_array to see if all cells are revealed
         // return false if one or more cell(s) is not revealed
-
-        // NEED CHANGE
         for (int i = 0; i < ROW_COUNT; i++){
             for (int j = 0; j < COLUMN_COUNT; j++){
                 if(revealed_loc_array[i][j] == false) return false;
@@ -250,14 +238,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void gameOver() {
         Intent intent = new Intent(MainActivity.this, ResultLandingPage.class);
-        // Pass the gameWin and clock values as extras
         intent.putExtra("won", won);
         intent.putExtra("clock", curr_clock);
-        // Start the Result page
         startActivity(intent);
     }
-
-
 
     private int findIndexOfCellTextView(TextView tv) {
         for (int n=0; n<cell_tvs.size(); n++) {
@@ -362,6 +346,7 @@ public class MainActivity extends AppCompatActivity {
             if (checkGameStatus() == true) {
                 running = false;
                 won = true;
+                gameOver();
             }
         }
     }
@@ -409,21 +394,18 @@ public class MainActivity extends AppCompatActivity {
         }
         // Didn't click on bomb
         else {
-            // NEED CHANGE
             tv.setTextColor(Color.GRAY);
             tv.setBackgroundColor(Color.LTGRAY);
             revealed_loc_array[i][j] = true;
 
-            int adjacentBombCount = mine_count_at_cell_array[i][j];
-
-            if (adjacentBombCount > 0) {
-                tv.setText(String.valueOf(adjacentBombCount));
+            int temp = mine_count_at_cell_array[i][j];
+            if (temp > 0) {
+                tv.setText(String.valueOf(temp));
             }
             else {
                 revealAdjacentCells(i, j);
                 tv.setText(" ");
             }
-
         }
     }
 }
